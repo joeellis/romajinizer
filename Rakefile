@@ -12,8 +12,8 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "romkan"
-  gem.homepage = "http://github.com/joeellis/romkan"
+  gem.name = "romajinizer"
+  gem.homepage = "http://github.com/joeellis/romajinizer"
   gem.license = "MIT"
   gem.summary = %Q{A gem for converting between hiragana, katakana, and romaji}
   gem.description = %Q{A gem for converting between hiragana, katakana, and romaji}
@@ -44,7 +44,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "romkan #{version}"
+  rdoc.title = "romajinizer #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

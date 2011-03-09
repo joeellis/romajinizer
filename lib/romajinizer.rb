@@ -153,8 +153,16 @@ module Kana2rom
   
   Hira2kataH={}; Kata2hiraH.each_pair{|k,v| Hira2kataH[v]=k}; Hira2kataH["か"]="カ"; Hira2kataH["が"]="ガ"
 
-  def kana2rom(str)
-    s="";str.each_char{|c|if(Kana2romH.key?(c))then s+=Kana2romH[c];else s+=c;end}
+  def kana2rom
+    s=""
+    self.each_char do |c|
+      if (Kana2romH.key?(c))
+        s += Kana2romH[c]
+      else 
+        s += c
+      end
+    end
+    
     s=s.gsub(/(k)([aiueo])(")/,'g\2').gsub(/(s)([aiueo])(")/,'z\2').gsub(/(t)([aiueo])(")/,'d\2')
     s=s.gsub(/(h)([aiueo])(")/,'b\2').gsub(/([fh])([aiueo])(')/,'p\2').gsub(/u"/,'vu') # [半]濁点゛゜
     #---------------------------------------------------------
@@ -193,6 +201,7 @@ module Kana2rom
     #---------------------------------------------------------
     # Cleanup specifically for source strings that contain spaces!
     s=s.gsub(/( +)([^a-z|A-z])/, '\2')                        # Remove spaces before any non-alphabetical char
+    s=s.gsub(/(n')/,'n')                                      # ン-->nn-->n
     s=s.gsub(/(nn)/,'n')                                      # ン-->nn-->n
     s=s.gsub(/( n)[^a-z|A-Z]?$/,'n')                          # Fix "n" appearing as separate word
     s=s.gsub(/\s{2,}/, ' ')                                   # Remove duplicate spaces!
@@ -200,48 +209,73 @@ module Kana2rom
     return s
   end
   
-  def rom2kata(str)
+  def rom2kata
     ## THIS LINE DOES NOT WORK IN RECENT RUBY VERSIONS!!!    r=""; w=[]; chars=str.split(//e)
-    result=""; word_buffer=[]; chars=str.each_char.collect{|c| c}
-    loop{
+    result="" 
+    word_buffer=[]
+    chars=self.each_char.collect{|c| c}
+    loop do
       case word_buffer.size
       ##### When 0 characters in the buffer
       when 0 then
-        if chars.size>0 then word_buffer.push(chars.shift) else return result; end
+        if chars.size > 0
+          word_buffer.push(chars.shift) 
+        else
+          return result
+        end
       ##### Patterns with 1 roman character
       when 1 then
-        if word_buffer[0]=~/[aiueo-]/ then result+=Rom2KataH1[word_buffer[0]]; word_buffer=[] # a-->ア
-        elsif word_buffer[0]=~/[xkcgszjtdnhbpvfmyrlw]/ then
-          if chars.size>0 then word_buffer.push(chars.shift)
-          else return result+(word_buffer[0].gsub(/n/,"ン")); 
+        if word_buffer[0] =~ /[aiueo-]/
+          result += Rom2KataH1[word_buffer[0]]
+          word_buffer = [] # a-->ア
+        elsif word_buffer[0] =~ /[xkcgszjtdnhbpvfmyrlw']/
+          if chars.size > 0
+            word_buffer.push(chars.shift)
+          else 
+            return result + (word_buffer[0].gsub(/n/,"ン")) 
           end
-        else result+=word_buffer.shift;
+        else 
+          result += word_buffer.shift
         end
       ##### Patterns with 2 roman characters
-      when 2 then 
-        if Rom2KataH2.key?(word_buffer.join) then result+=Rom2KataH2[word_buffer.join]; word_buffer=[];
-        elsif word_buffer.join=~/([kgszjtcdnhbpmrl]y)|([stcd]h)|ts|(x[wytk])/ then # goto 3
-          if chars.size>0 then word_buffer.push(chars.shift) # Consume next letter from source array
-          else return result+(word_buffer.join.gsub(/n/,"ン"));
+      when 2 then    
+        if Rom2KataH2.key?(word_buffer.join)
+          result += Rom2KataH2[word_buffer.join]
+          word_buffer = []
+        elsif word_buffer.join =~ /([kgszjtcdnhbpmrl]y)|([stcd]h)|ts|(x[wytk])/ # goto 3
+          if chars.size > 0
+            # Consume next letter from source array
+            word_buffer.push(chars.shift)
+          else 
+            return result + (word_buffer.join.gsub(/n/,"ン"))
           end
-        elsif word_buffer[0]=="n" then result+="ン"; word_buffer.shift # nk-->ンk
-        elsif word_buffer[0]==word_buffer[1] then result+="ッ"; word_buffer.shift # kk-->ッk
-        else result+=word_buffer.shift;
+        elsif word_buffer.join == "n'"
+          result += "ン"
+          word_buffer.shift(2) # n'--> ン
+        elsif word_buffer[0] == "n" 
+          result += "ン"
+          word_buffer.shift # nk-->ンk
+        elsif word_buffer[0] == word_buffer[1]
+          result += "ッ"
+          word_buffer.shift # kk-->ッk
+        else 
+          result += word_buffer.shift;
         end
       ##### Patterns with 3 roman characters
       when 3 then
-        if Rom2KataH3.key?(word_buffer.join) then result+=Rom2KataH3[word_buffer.join]; word_buffer=[];
-        elsif word_buffer[0]=="n" then result+="ン"; word_buffer.shift;
-        else result+=word_buffer.shift;
+        if Rom2KataH3.key?(word_buffer.join)
+          result += Rom2KataH3[word_buffer.join] 
+          word_buffer=[]
+        elsif word_buffer[0] == "n" 
+          result += "ン"
+          word_buffer.shift
+        else 
+          result += word_buffer.shift
         end
       end
-    }
+    end
   end
-
-  def rom2hira(str)
-    return kata2hira(rom2kata(str))
-  end
-
+  
   def kata2hira(str)
     s=""; str.each_char{|c| s+=( Kata2hiraH.key?(c) ? Kata2hiraH[c] : c )}
     return s
@@ -262,25 +296,17 @@ module Kana2rom
     result << str3 if str3.length > 0 and str2 !=str3 and str3 != str1
     return result
   end
+  
+  def rom2hira
+    return kata2hira(rom2kata)
+  end
+  
+  alias :to_hiragana :rom2hira
+  alias :to_katakana :rom2kata
+  alias :to_romaji :kana2rom
 
-  # module_function :kana2rom, :rom2kata, :kata2hira, :hira2kata, :rom2hira, :kana2kana
 end
 
 class String
-  extend Kana2rom
+  include Kana2rom
 end
-
-=begin
-### Uncomment this section to test at command line
-require 'jcode'
-if $0 == __FILE__ then
-  # sample
-  str="きにょうび/きんようび"
-  printf("ローマ字: %s\n",  Kana2rom::kana2rom(str))
-  printf("平仮名  : %s\n",  Kana2rom::kata2hira(str))
-  printf("片仮名  : %s\n",  Kana2rom::hira2kata(str))
-  str="ro-maji"
-  printf("片仮名  : %s\n",  Kana2rom::rom2kata(str))
-  printf("平仮名  : %s\n",  Kana2rom::rom2hira(str))
-end
-=end
