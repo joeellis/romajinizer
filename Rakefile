@@ -15,8 +15,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "romkan"
   gem.homepage = "http://github.com/joeellis/romkan"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{A gem for converting between hiragana, katakana, and romaji}
+  gem.description = %Q{A gem for converting between hiragana, katakana, and romaji}
   gem.email = "joe@squarefour.net"
   gem.authors = ["Joe Ellis"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,

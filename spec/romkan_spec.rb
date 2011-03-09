@@ -1,7 +1,8 @@
+#coding: utf-8
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Romkan" do
-  it "fails" do
-    fail "hey buddy, you should probably rename this file and start specing for real"
+  it "should convert romaji to hiragana properly" do
+    String.rom2hira("tsukue").should == "つくえ"
   end
 end
