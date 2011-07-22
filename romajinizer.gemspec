@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{romajinizer}
-  s.version = "0.0.1"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joe Ellis"]
-  s.date = %q{2011-03-09}
+  s.date = %q{2011-07-22}
   s.description = %q{A gem for converting between hiragana, katakana, and romaji}
   s.email = %q{joe@squarefour.net}
   s.extra_rdoc_files = [
@@ -26,13 +26,14 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "lib/romajinizer.rb",
+    "romajinizer.gemspec",
     "spec/romajinizer_spec.rb",
     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/joeellis/romajinizer}
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.5.0}
+  s.rubygems_version = %q{1.6.2}
   s.summary = %q{A gem for converting between hiragana, katakana, and romaji}
   s.test_files = [
     "spec/romajinizer_spec.rb",
