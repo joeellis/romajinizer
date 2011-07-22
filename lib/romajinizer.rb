@@ -14,6 +14,14 @@
 # Repaired script to work with modern Ruby versions (1.86+), added comments, 
 # made it support gaijin friendly transliterations!
 # ---------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------
+# Joe Ellis (joe at squarefour.net 2011-03-09)
+# Added a few more edge cases ('n romaji support), 
+# Started gemifications so it can easily be used in any project 
+# Added normalization for double nn so that こんばn will still be converted to こんばん properly
+# ---------------------------------------------------------------------------------
+
 # USAGE
 #
 # Include kana2rom
@@ -278,12 +286,22 @@ module Kana2rom
   
   def kata2hira(str)
     s=""; str.each_char{|c| s+=( Kata2hiraH.key?(c) ? Kata2hiraH[c] : c )}
+    s.normalize_double_n!
     return s
   end
 
   def hira2kata(str)
     s=""; str.each_char{|c|if(Hira2kataH.key?(c))then s+=Hira2kataH[c];else s+=c; end}
     return s
+  end
+  
+  def normalize_double_n
+    self.gsub(/n\'(?=[^aiueoyn]|$)/, "n")
+  end
+
+  def normalize_double_n!
+    self.gsub!(/n\'(?=[^aiueoyn]|$)/, "n")
+    self
   end
 
   # Added by Paul 2009-05-12 22:31

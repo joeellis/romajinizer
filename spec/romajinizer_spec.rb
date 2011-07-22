@@ -21,4 +21,8 @@ describe "Romajinizer" do
     "こんや".to_romaji.should == "konya"
     "こんにち".to_romaji.should == "konnichi"
   end
+  
+  it "should convert kana to kana" do
+    "こんばn".to_hiragana.should == "こんばん"
+  end
 end
