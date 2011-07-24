@@ -37,6 +37,28 @@
 
 module Kana2rom
 
+  HiraganaCharacters = [
+    ' ', '　', '々', '～', 'っ', 'ょ', 'ゃ', 'ゅ', 'あ', 'い', 'う', 
+    'え', 'お', 'か', 'き', 'く', 'け', 'こ', 'さ', 'し', 'す', 'せ', 
+    'そ', 'た', 'ち', 'つ', 'て', 'と', 'な', 'に', 'ぬ', 'ね', 'の', 
+    'は', 'ひ', 'ふ', 'へ', 'ほ', 'ま', 'み', 'む', 'め', 'も', 'や', 
+    'ゆ', 'よ', 'ら', 'り', 'る', 'れ', 'ろ', 'わ', 'ゐ', 'ゑ', 'を', 
+    'ん', 'が', 'ぎ', 'ぐ', 'げ', 'ご', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ', 
+    'だ', 'ぢ', 'づ', 'で', 'ど', 'ば', 'び', 'ぶ', 'べ', 'ぼ', 'ぱ', 
+    'ぴ', 'ぷ', 'ぺ', 'ぽ', 'ヶ'
+  ]
+
+  KatakanaCharacters = [
+    'ョ', 'ャ', 'ュ', 'ア', 'イ', 'ウ', 'エ', 'オ', 'カ', 'キ', 'ク', 
+    'ケ', 'コ', 'サ', 'シ', 'ス', 'セ', 'ソ', 'タ', 'チ', 'ツ', 'テ', 
+    'ト', 'ナ', 'ニ', 'ヌ', 'ネ', 'ノ', 'ハ', 'ヒ', 'フ', 'ヘ', 'ホ', 
+    'マ', 'ミ', 'ム', 'メ', 'モ', 'ヤ', 'ユ', 'ヨ', 'ラ', 'リ', 'ル', 
+    'レ', 'ロ', 'ワ', 'ゐ', 'ゑ', 'ヲ', 'ン', 'ガ', 'ギ', 'グ', 'ゲ', 
+    'ゴ', 'ザ', 'ジ', 'ズ', 'ゼ', 'ゾ', 'ダ', 'ヅ', 'ヂ', 'ズ', 'デ', 
+    'ド', 'バ', 'ビ', 'ブ', 'ベ', 'ボ', 'パ', 'ピ', 'プ', 'ペ', 'ポ'
+  ] 
+
+
   Kana2romH={
     "ア"=>"a", "イ"=>"i", "ウ"=>"u", "エ"=>"e","オ"=>"o",
     "あ"=>"a", "い"=>"i", "う"=>"u", "え"=>"e","お"=>"o",
@@ -78,7 +100,7 @@ module Kana2rom
     "："=>":", "　" => " ", "＠" => "@", "（" => "(", "）" => ")",
     " " => " "
   }
-  
+
   Kana2romH2={
     "てぃ" => "ti", "でぃ" => "di"
   }
@@ -158,7 +180,7 @@ module Kana2rom
     "ッ"=>"っ", "ャ"=>"ゃ", "ュ"=>"ゅ", "ョ"=>"ょ",
     "ヴ"=>"う゛", "ヵ"=>"か", "ヶ"=>"が", "ヮ"=>"ゎ"
   }
-  
+
   Hira2kataH={}; Kata2hiraH.each_pair{|k,v| Hira2kataH[v]=k}; Hira2kataH["か"]="カ"; Hira2kataH["が"]="ガ"
 
   def kana2rom
@@ -170,7 +192,7 @@ module Kana2rom
         s += c
       end
     end
-    
+
     s=s.gsub(/(k)([aiueo])(")/,'g\2').gsub(/(s)([aiueo])(")/,'z\2').gsub(/(t)([aiueo])(")/,'d\2')
     s=s.gsub(/(h)([aiueo])(")/,'b\2').gsub(/([fh])([aiueo])(')/,'p\2').gsub(/u"/,'vu') # [半]濁点゛゜
     #---------------------------------------------------------
@@ -216,7 +238,7 @@ module Kana2rom
     #---------------------------------------------------------
     return s
   end
-  
+
   def rom2kata
     ## THIS LINE DOES NOT WORK IN RECENT RUBY VERSIONS!!!    r=""; w=[]; chars=str.split(//e)
     result="" 
@@ -224,14 +246,14 @@ module Kana2rom
     chars=self.each_char.collect{|c| c}
     loop do
       case word_buffer.size
-      ##### When 0 characters in the buffer
+        ##### When 0 characters in the buffer
       when 0 then
         if chars.size > 0
           word_buffer.push(chars.shift) 
         else
           return result
         end
-      ##### Patterns with 1 roman character
+        ##### Patterns with 1 roman character
       when 1 then
         if word_buffer[0] =~ /[aiueo-]/
           result += Rom2KataH1[word_buffer[0]]
@@ -245,7 +267,7 @@ module Kana2rom
         else 
           result += word_buffer.shift
         end
-      ##### Patterns with 2 roman characters
+        ##### Patterns with 2 roman characters
       when 2 then    
         if Rom2KataH2.key?(word_buffer.join)
           result += Rom2KataH2[word_buffer.join]
@@ -269,7 +291,7 @@ module Kana2rom
         else 
           result += word_buffer.shift;
         end
-      ##### Patterns with 3 roman characters
+        ##### Patterns with 3 roman characters
       when 3 then
         if Rom2KataH3.key?(word_buffer.join)
           result += Rom2KataH3[word_buffer.join] 
@@ -283,7 +305,7 @@ module Kana2rom
       end
     end
   end
-  
+
   def kata2hira(str)
     s=""; str.each_char{|c| s+=( Kata2hiraH.key?(c) ? Kata2hiraH[c] : c )}
     s.normalize_double_n!
@@ -294,7 +316,7 @@ module Kana2rom
     s=""; str.each_char{|c|if(Hira2kataH.key?(c))then s+=Hira2kataH[c];else s+=c; end}
     return s
   end
-  
+
   def normalize_double_n
     self.gsub(/n\'(?=[^aiueoyn]|$)/, "n")
   end
@@ -314,11 +336,29 @@ module Kana2rom
     result << str3 if str3.length > 0 and str2 !=str3 and str3 != str1
     return result
   end
-  
+
   def rom2hira
     return kata2hira(rom2kata)
   end
   
+  def is_only_kana?
+    self.each_char do |character|
+      if HiraganaCharacters.include?(character) == FALSE && KatakanaCharacters.include?(character) == FALSE
+        return false
+      end
+    end
+    return true
+  end
+  
+  def contains_kana?
+    self.each_char do |character|
+      if HiraganaCharacters.include?(character) == TRUE || KatakanaCharacters.include?(character) == TRUE
+        return true
+      end
+    end
+    return false
+  end
+
   alias :to_hiragana :rom2hira
   alias :to_katakana :rom2kata
   alias :to_romaji :kana2rom
