@@ -35,4 +35,12 @@ describe "Romajinizer" do
     "行きます".contains_kana?.should == true
     "abcdefg".contains_kana?.should == false
   end
+  
+  it "should be able to tell if a character is a kana character" do
+    "す".is_kana?.should == true
+  end
+  
+  it "should be able to tell if a character is a kanji character" do
+    "行".is_kanji?.should == true
+  end
 end

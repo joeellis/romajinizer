@@ -340,7 +340,21 @@ module Kana2rom
   def rom2hira
     return kata2hira(rom2kata)
   end
-  
+
+  def is_kana?
+    if HiraganaCharacters.include?(self) == TRUE || KatakanaCharacters.include?(self) == TRUE
+      return true
+    end
+    return false
+  end
+
+  def is_kanji?
+    if HiraganaCharacters.include?(self) == FALSE && KatakanaCharacters.include?(self) == FALSE
+      return true
+    end
+    return false
+  end
+
   def is_only_kana?
     self.each_char do |character|
       if HiraganaCharacters.include?(character) == FALSE && KatakanaCharacters.include?(character) == FALSE
@@ -349,7 +363,7 @@ module Kana2rom
     end
     return true
   end
-  
+
   def contains_kana?
     self.each_char do |character|
       if HiraganaCharacters.include?(character) == TRUE || KatakanaCharacters.include?(character) == TRUE
