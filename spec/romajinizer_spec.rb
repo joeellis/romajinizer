@@ -10,37 +10,40 @@ describe "Romajinizer" do
     "konnnichi".to_hiragana.should == "こんにち"
     "kaetta".to_hiragana.should == "かえった"
   end
-  
+
   it "should convert romaji to katakana properly" do
     "tsukue".to_katakana.should == "ツクエ"
   end
-  
+
   it "should convert kana to romaji properly" do
     "つくえ".to_romaji.should == "tsukue"
     "きんようび".to_romaji.should == "kinyoubi"
     "こんや".to_romaji.should == "konya"
     "こんにち".to_romaji.should == "konnichi"
   end
-  
+
   it "should convert kana to kana" do
     "こんばn".to_hiragana.should == "こんばん"
   end
-  
+
   it "should be able to tell if a word contains anything else but kana" do
     "行きます".is_only_kana?.should == false
     "いきます".is_only_kana?.should == true
   end
-  
+
   it "should be able to tell if a word contains kana" do
     "行きます".contains_kana?.should == true
     "abcdefg".contains_kana?.should == false
   end
-  
+
   it "should be able to tell if a character is a kana character" do
     "す".is_kana?.should == true
   end
-  
+
   it "should be able to tell if a character is a kanji character" do
     "行".is_kanji?.should == true
+    "あ".is_kanji?.should == false
+    "ア".is_kanji?.should == false
+    "〜".is_kanji?.should == false
   end
 end

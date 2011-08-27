@@ -11,14 +11,14 @@
 #
 # ---------------------------------------------------------------------------------
 # Paul Chapman (paul [a../t] longweekendmobile 2010-04-01)
-# Repaired script to work with modern Ruby versions (1.86+), added comments, 
+# Repaired script to work with modern Ruby versions (1.86+), added comments,
 # made it support gaijin friendly transliterations!
 # ---------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------
 # Joe Ellis (joe at squarefour.net 2011-03-09)
-# Added a few more edge cases ('n romaji support), 
-# Started gemifications so it can easily be used in any project 
+# Added a few more edge cases ('n romaji support),
+# Started gemifications so it can easily be used in any project
 # Added normalization for double nn so that こんばn will still be converted to こんばん properly
 # ---------------------------------------------------------------------------------
 
@@ -37,26 +37,32 @@
 
 module Kana2rom
 
+  NotKanaCharacters = [
+    '〜', '＄', '＃', '＠', '！', '％', '＾', '＆', '＊', '（', '）',
+    '＿', 'ー', '＋','＝', '？', '＞', '＜', '、', '。', '／',
+    '』','『', '「', '」', '｀'
+  ]
+
   HiraganaCharacters = [
-    ' ', '　', '々', '～', 'っ', 'ょ', 'ゃ', 'ゅ', 'あ', 'い', 'う', 
-    'え', 'お', 'か', 'き', 'く', 'け', 'こ', 'さ', 'し', 'す', 'せ', 
-    'そ', 'た', 'ち', 'つ', 'て', 'と', 'な', 'に', 'ぬ', 'ね', 'の', 
-    'は', 'ひ', 'ふ', 'へ', 'ほ', 'ま', 'み', 'む', 'め', 'も', 'や', 
-    'ゆ', 'よ', 'ら', 'り', 'る', 'れ', 'ろ', 'わ', 'ゐ', 'ゑ', 'を', 
-    'ん', 'が', 'ぎ', 'ぐ', 'げ', 'ご', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ', 
-    'だ', 'ぢ', 'づ', 'で', 'ど', 'ば', 'び', 'ぶ', 'べ', 'ぼ', 'ぱ', 
+    ' ', '　', '々', 'っ', 'ょ', 'ゃ', 'ゅ', 'あ', 'い', 'う',
+    'え', 'お', 'か', 'き', 'く', 'け', 'こ', 'さ', 'し', 'す', 'せ',
+    'そ', 'た', 'ち', 'つ', 'て', 'と', 'な', 'に', 'ぬ', 'ね', 'の',
+    'は', 'ひ', 'ふ', 'へ', 'ほ', 'ま', 'み', 'む', 'め', 'も', 'や',
+    'ゆ', 'よ', 'ら', 'り', 'る', 'れ', 'ろ', 'わ', 'ゐ', 'ゑ', 'を',
+    'ん', 'が', 'ぎ', 'ぐ', 'げ', 'ご', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ',
+    'だ', 'ぢ', 'づ', 'で', 'ど', 'ば', 'び', 'ぶ', 'べ', 'ぼ', 'ぱ',
     'ぴ', 'ぷ', 'ぺ', 'ぽ', 'ヶ'
   ]
 
   KatakanaCharacters = [
-    'ョ', 'ャ', 'ュ', 'ア', 'イ', 'ウ', 'エ', 'オ', 'カ', 'キ', 'ク', 
-    'ケ', 'コ', 'サ', 'シ', 'ス', 'セ', 'ソ', 'タ', 'チ', 'ツ', 'テ', 
-    'ト', 'ナ', 'ニ', 'ヌ', 'ネ', 'ノ', 'ハ', 'ヒ', 'フ', 'ヘ', 'ホ', 
-    'マ', 'ミ', 'ム', 'メ', 'モ', 'ヤ', 'ユ', 'ヨ', 'ラ', 'リ', 'ル', 
-    'レ', 'ロ', 'ワ', 'ゐ', 'ゑ', 'ヲ', 'ン', 'ガ', 'ギ', 'グ', 'ゲ', 
-    'ゴ', 'ザ', 'ジ', 'ズ', 'ゼ', 'ゾ', 'ダ', 'ヅ', 'ヂ', 'ズ', 'デ', 
+    'ョ', 'ャ', 'ュ', 'ア', 'イ', 'ウ', 'エ', 'オ', 'カ', 'キ', 'ク',
+    'ケ', 'コ', 'サ', 'シ', 'ス', 'セ', 'ソ', 'タ', 'チ', 'ツ', 'テ',
+    'ト', 'ナ', 'ニ', 'ヌ', 'ネ', 'ノ', 'ハ', 'ヒ', 'フ', 'ヘ', 'ホ',
+    'マ', 'ミ', 'ム', 'メ', 'モ', 'ヤ', 'ユ', 'ヨ', 'ラ', 'リ', 'ル',
+    'レ', 'ロ', 'ワ', 'ゐ', 'ゑ', 'ヲ', 'ン', 'ガ', 'ギ', 'グ', 'ゲ',
+    'ゴ', 'ザ', 'ジ', 'ズ', 'ゼ', 'ゾ', 'ダ', 'ヅ', 'ヂ', 'ズ', 'デ',
     'ド', 'バ', 'ビ', 'ブ', 'ベ', 'ボ', 'パ', 'ピ', 'プ', 'ペ', 'ポ'
-  ] 
+  ]
 
 
   Kana2romH={
@@ -114,23 +120,23 @@ module Kana2rom
     "xa"=>"ァ", "xi"=>"ィ", "xu"=>"ゥ", "xe"=>"ェ", "xo"=>"ォ",
     "ka"=>"カ", "ki"=>"キ", "ku"=>"ク", "ke"=>"ケ", "ko"=>"コ",
     "ca"=>"カ", "cu"=>"ク", "co"=>"コ",
-    "ga"=>"ガ", "gi"=>"ギ", "gu"=>"グ", "ge"=>"ゲ", "go"=>"ゴ", 
-    "sa"=>"サ", "si"=>"シ", "su"=>"ス", "se"=>"セ", "so"=>"ソ", 
+    "ga"=>"ガ", "gi"=>"ギ", "gu"=>"グ", "ge"=>"ゲ", "go"=>"ゴ",
+    "sa"=>"サ", "si"=>"シ", "su"=>"ス", "se"=>"セ", "so"=>"ソ",
     "za"=>"ザ", "zi"=>"ジ", "zu"=>"ズ", "ze"=>"ゼ", "zo"=>"ゾ",
-    "ja"=>"ジャ","ji"=>"ジ", "ju"=>"ジュ","je"=>"ジェ","jo"=>"ジョ", 
-    "ta"=>"タ", "ti"=>"チ", "tsu"=>"ツ", "te"=>"テ", "to"=>"ト", 
-    "da"=>"ダ", "di"=>"ヂ", "du"=>"ヅ", "de"=>"デ", "do"=>"ド", 
-    "na"=>"ナ", "ni"=>"ニ", "nu"=>"ヌ", "ne"=>"ネ", "no"=>"ノ", 
-    "ha"=>"ハ", "hi"=>"ヒ", "hu"=>"フ", "he"=>"ヘ", "ho"=>"ホ", 
-    "ba"=>"バ", "bi"=>"ビ", "bu"=>"ブ", "be"=>"ベ", "bo"=>"ボ", 
-    "pa"=>"パ", "pi"=>"ピ", "pu"=>"プ", "pe"=>"ペ", "po"=>"ポ", 
-    "va"=>"ヴァ","vi"=>"ヴィ","vu"=>"ヴ", "ve"=>"ヴェ","vo"=>"ヴォ", 
-    "fa"=>"ファ","fi"=>"フィ","fu"=>"フ", "fe"=>"フェ","fo"=>"フォ", 
-    "ma"=>"マ", "mi"=>"ミ", "mu"=>"ム", "me"=>"メ", "mo"=>"モ", 
-    "ya"=>"ヤ", "yi"=>"イ", "yu"=>"ユ", "ye"=>"イェ", "yo"=>"ヨ", 
-    "ra"=>"ラ", "ri"=>"リ", "ru"=>"ル", "re"=>"レ", "ro"=>"ロ", 
-    "la"=>"ラ", "li"=>"リ", "lu"=>"ル", "le"=>"レ", "lo"=>"ロ", 
-    "wa"=>"ワ", "wi"=>"ヰ", "wu"=>"ウ", "we"=>"ヱ", "wo"=>"ヲ", 
+    "ja"=>"ジャ","ji"=>"ジ", "ju"=>"ジュ","je"=>"ジェ","jo"=>"ジョ",
+    "ta"=>"タ", "ti"=>"チ", "tsu"=>"ツ", "te"=>"テ", "to"=>"ト",
+    "da"=>"ダ", "di"=>"ヂ", "du"=>"ヅ", "de"=>"デ", "do"=>"ド",
+    "na"=>"ナ", "ni"=>"ニ", "nu"=>"ヌ", "ne"=>"ネ", "no"=>"ノ",
+    "ha"=>"ハ", "hi"=>"ヒ", "hu"=>"フ", "he"=>"ヘ", "ho"=>"ホ",
+    "ba"=>"バ", "bi"=>"ビ", "bu"=>"ブ", "be"=>"ベ", "bo"=>"ボ",
+    "pa"=>"パ", "pi"=>"ピ", "pu"=>"プ", "pe"=>"ペ", "po"=>"ポ",
+    "va"=>"ヴァ","vi"=>"ヴィ","vu"=>"ヴ", "ve"=>"ヴェ","vo"=>"ヴォ",
+    "fa"=>"ファ","fi"=>"フィ","fu"=>"フ", "fe"=>"フェ","fo"=>"フォ",
+    "ma"=>"マ", "mi"=>"ミ", "mu"=>"ム", "me"=>"メ", "mo"=>"モ",
+    "ya"=>"ヤ", "yi"=>"イ", "yu"=>"ユ", "ye"=>"イェ", "yo"=>"ヨ",
+    "ra"=>"ラ", "ri"=>"リ", "ru"=>"ル", "re"=>"レ", "ro"=>"ロ",
+    "la"=>"ラ", "li"=>"リ", "lu"=>"ル", "le"=>"レ", "lo"=>"ロ",
+    "wa"=>"ワ", "wi"=>"ヰ", "wu"=>"ウ", "we"=>"ヱ", "wo"=>"ヲ",
     "nn"=>"ン"
   }
 
@@ -139,23 +145,23 @@ module Kana2rom
     "tsu"=>"ツ",
     "xka"=>"ヵ", "xke"=>"ヶ",
     "xwa"=>"ヮ", "xtsu"=>"ッ",   "xya"=>"ャ",  "xyu"=>"ュ",  "xyo"=>"ョ",
-    "kya"=>"キャ", "kyi"=>"キィ", "kyu"=>"キュ", "kye"=>"キェ", "kyo"=>"キョ", 
-    "gya"=>"ギャ", "gyi"=>"ギィ", "gyu"=>"ギュ", "gye"=>"ギェ", "gyo"=>"ギョ", 
-    "sya"=>"シャ", "syi"=>"シィ", "syu"=>"シュ", "sye"=>"シェ", "syo"=>"ショ", 
-    "sha"=>"シャ", "shi"=>"シ",  "shu"=>"シュ", "she"=>"シェ", "sho"=>"ショ", 
-    "zya"=>"ジャ", "zyi"=>"ジィ", "zyu"=>"ジュ", "zye"=>"ジェ", "zyo"=>"ジョ", 
+    "kya"=>"キャ", "kyi"=>"キィ", "kyu"=>"キュ", "kye"=>"キェ", "kyo"=>"キョ",
+    "gya"=>"ギャ", "gyi"=>"ギィ", "gyu"=>"ギュ", "gye"=>"ギェ", "gyo"=>"ギョ",
+    "sya"=>"シャ", "syi"=>"シィ", "syu"=>"シュ", "sye"=>"シェ", "syo"=>"ショ",
+    "sha"=>"シャ", "shi"=>"シ",  "shu"=>"シュ", "she"=>"シェ", "sho"=>"ショ",
+    "zya"=>"ジャ", "zyi"=>"ジィ", "zyu"=>"ジュ", "zye"=>"ジェ", "zyo"=>"ジョ",
     "jya"=>"ジャ", "jyi"=>"ジィ", "jyu"=>"ジュ", "jye"=>"ジェ", "jyo"=>"ジョ",
-    "tya"=>"チャ", "tyi"=>"チィ", "tyu"=>"チュ", "tye"=>"チェ", "tyo"=>"チョ", 
-    "cya"=>"チャ", "cyi"=>"チィ", "cyu"=>"チュ", "cye"=>"チェ", "cyo"=>"チョ", 
-    "cha"=>"チャ", "chi"=>"チ",  "chu"=>"チュ", "che"=>"チェ", "cho"=>"チョ", 
-    "tha"=>"テャ", "thi"=>"ティ", "thu"=>"テュ", "the"=>"テェ", "tho"=>"テョ", 
-    "dya"=>"ヂャ", "dyi"=>"ヂィ", "dyu"=>"ヂュ", "dye"=>"ヂェ", "dyo"=>"ヂョ", 
-    "dha"=>"デャ", "dhi"=>"ディ", "dhu"=>"デュ", "dhe"=>"デェ", "dho"=>"デョ", 
+    "tya"=>"チャ", "tyi"=>"チィ", "tyu"=>"チュ", "tye"=>"チェ", "tyo"=>"チョ",
+    "cya"=>"チャ", "cyi"=>"チィ", "cyu"=>"チュ", "cye"=>"チェ", "cyo"=>"チョ",
+    "cha"=>"チャ", "chi"=>"チ",  "chu"=>"チュ", "che"=>"チェ", "cho"=>"チョ",
+    "tha"=>"テャ", "thi"=>"ティ", "thu"=>"テュ", "the"=>"テェ", "tho"=>"テョ",
+    "dya"=>"ヂャ", "dyi"=>"ヂィ", "dyu"=>"ヂュ", "dye"=>"ヂェ", "dyo"=>"ヂョ",
+    "dha"=>"デャ", "dhi"=>"ディ", "dhu"=>"デュ", "dhe"=>"デェ", "dho"=>"デョ",
     "nya"=>"ニャ", "nyi"=>"ニィ", "nyu"=>"ニュ", "nye"=>"ニェ", "nyo"=>"ニョ",
-    "hya"=>"ヒャ", "hyi"=>"ヒィ", "hyu"=>"ヒュ", "hye"=>"ヒェ", "hyo"=>"ヒョ", 
-    "bya"=>"ビャ", "byi"=>"ビィ", "byu"=>"ビュ", "bye"=>"ビェ", "byo"=>"ビョ", 
-    "pya"=>"ピャ", "pyi"=>"ピィ", "pyu"=>"ピュ", "pye"=>"ピェ", "pyo"=>"ピョ", 
-    "mya"=>"ミャ", "myi"=>"ミィ", "myu"=>"ミュ", "mye"=>"ミェ", "myo"=>"ミョ", 
+    "hya"=>"ヒャ", "hyi"=>"ヒィ", "hyu"=>"ヒュ", "hye"=>"ヒェ", "hyo"=>"ヒョ",
+    "bya"=>"ビャ", "byi"=>"ビィ", "byu"=>"ビュ", "bye"=>"ビェ", "byo"=>"ビョ",
+    "pya"=>"ピャ", "pyi"=>"ピィ", "pyu"=>"ピュ", "pye"=>"ピェ", "pyo"=>"ピョ",
+    "mya"=>"ミャ", "myi"=>"ミィ", "myu"=>"ミュ", "mye"=>"ミェ", "myo"=>"ミョ",
     "rya"=>"リャ", "ryi"=>"リィ", "ryu"=>"リュ", "rye"=>"リェ", "ryo"=>"リョ",
     "lya"=>"リャ", "lyi"=>"リィ", "lyu"=>"リュ", "lye"=>"リェ", "lyo"=>"リョ"
   }
@@ -188,7 +194,7 @@ module Kana2rom
     self.each_char do |c|
       if (Kana2romH.key?(c))
         s += Kana2romH[c]
-      else 
+      else
         s += c
       end
     end
@@ -241,7 +247,7 @@ module Kana2rom
 
   def rom2kata
     ## THIS LINE DOES NOT WORK IN RECENT RUBY VERSIONS!!!    r=""; w=[]; chars=str.split(//e)
-    result="" 
+    result=""
     word_buffer=[]
     chars=self.each_char.collect{|c| c}
     loop do
@@ -249,7 +255,7 @@ module Kana2rom
         ##### When 0 characters in the buffer
       when 0 then
         if chars.size > 0
-          word_buffer.push(chars.shift) 
+          word_buffer.push(chars.shift)
         else
           return result
         end
@@ -261,14 +267,14 @@ module Kana2rom
         elsif word_buffer[0] =~ /[xkcgszjtdnhbpvfmyrlw']/
           if chars.size > 0
             word_buffer.push(chars.shift)
-          else 
-            return result + (word_buffer[0].gsub(/n/,"ン")) 
+          else
+            return result + (word_buffer[0].gsub(/n/,"ン"))
           end
-        else 
+        else
           result += word_buffer.shift
         end
         ##### Patterns with 2 roman characters
-      when 2 then    
+      when 2 then
         if Rom2KataH2.key?(word_buffer.join)
           result += Rom2KataH2[word_buffer.join]
           word_buffer = []
@@ -276,30 +282,30 @@ module Kana2rom
           if chars.size > 0
             # Consume next letter from source array
             word_buffer.push(chars.shift)
-          else 
+          else
             return result + (word_buffer.join.gsub(/n/,"ン"))
           end
         elsif word_buffer.join == "n'"
           result += "ン"
           word_buffer.shift(2) # n'--> ン
-        elsif word_buffer[0] == "n" 
+        elsif word_buffer[0] == "n"
           result += "ン"
           word_buffer.shift # nk-->ンk
         elsif word_buffer[0] == word_buffer[1]
           result += "ッ"
           word_buffer.shift # kk-->ッk
-        else 
+        else
           result += word_buffer.shift;
         end
         ##### Patterns with 3 roman characters
       when 3 then
         if Rom2KataH3.key?(word_buffer.join)
-          result += Rom2KataH3[word_buffer.join] 
+          result += Rom2KataH3[word_buffer.join]
           word_buffer=[]
-        elsif word_buffer[0] == "n" 
+        elsif word_buffer[0] == "n"
           result += "ン"
           word_buffer.shift
-        else 
+        else
           result += word_buffer.shift
         end
       end
@@ -349,7 +355,7 @@ module Kana2rom
   end
 
   def is_kanji?
-    if HiraganaCharacters.include?(self) == FALSE && KatakanaCharacters.include?(self) == FALSE
+    if HiraganaCharacters.include?(self) == FALSE && KatakanaCharacters.include?(self) == FALSE && NotKanaCharacters.include?(self) == FALSE
       return true
     end
     return false
