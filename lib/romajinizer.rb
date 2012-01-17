@@ -1,7 +1,7 @@
 # coding: utf-8
 
 #
-# kana2rom.rb
+# to_romaji.rb
 # A Ruby module for converting between hiragana, katakana and romaji.
 #
 # ---------------------------------------------------------------------------------
@@ -24,13 +24,13 @@
 
 # USAGE
 #
-# Include kana2rom
+# Include Kana2rom
 #
-#  kana2rom(str)     かな --> ロ－マ字 変換    /   hira/katakana ->> romaji conv
-#  rom2kata(str)     ロ－マ字 --> 片仮名 変換   /   romaji --> katakana　conv
-#  rom2hira(str)     ロ－マ字 --> 平仮名 変換   /   romaji　--> hiragana conv
-#  hira2kata(str)    平仮名 --> 片仮名 変換    /   hiragana --> katakana conv
-#  kata2hira(str)    片仮名 --> 平仮名 変換    /   katakana ->> hiragana conv
+#  to_romaji(str)     かな --> ロ－マ字 変換    /   hira/katakana ->> romaji conv
+#  to_katakana(str)     ロ－マ字 --> 片仮名 変換   /   romaji --> katakana　conv
+#  to_hiragana(str)     ロ－マ字 --> 平仮名 変換   /   romaji　--> hiragana conv
+#  hira_to_kata(str)    平仮名 --> 片仮名 変換    /   hiragana --> katakana conv
+#  kata_to_hira(str)    片仮名 --> 平仮名 変換    /   katakana ->> hiragana conv
 #  kana2kana(str)   attempts either to either, returns unique strings only
 #
 # ---------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ module Kana2rom
 
   Hira2kataH={}; Kata2hiraH.each_pair{|k,v| Hira2kataH[v]=k}; Hira2kataH["か"]="カ"; Hira2kataH["が"]="ガ"
 
-  def kana2rom
+  def to_romaji
     s=""
     self.each_char do |c|
       if (Kana2romH.key?(c))
@@ -245,7 +245,7 @@ module Kana2rom
     return s
   end
 
-  def rom2kata
+  def to_katakana
     ## THIS LINE DOES NOT WORK IN RECENT RUBY VERSIONS!!!    r=""; w=[]; chars=str.split(//e)
     result=""
     word_buffer=[]
@@ -312,13 +312,13 @@ module Kana2rom
     end
   end
 
-  def kata2hira(str)
+  def kata_to_hira(str)
     s=""; str.each_char{|c| s+=( Kata2hiraH.key?(c) ? Kata2hiraH[c] : c )}
     s.normalize_double_n!
     return s
   end
 
-  def hira2kata(str)
+  def hira_to_kata(str)
     s=""; str.each_char{|c|if(Hira2kataH.key?(c))then s+=Hira2kataH[c];else s+=c; end}
     return s
   end
@@ -335,16 +335,16 @@ module Kana2rom
   # Added by Paul 2009-05-12 22:31
   def kana2kana(str1)
     result = []
-    str2 = Kana2rom::hira2kata(str1)
-    str3 = Kana2rom::kata2hira(str1)
+    str2 = Kana2rom::hira_to_kata(str1)
+    str3 = Kana2rom::kata_to_hira(str1)
     result << str1
     result << str2 if str2.length > 0 and str1 !=str2
     result << str3 if str3.length > 0 and str2 !=str3 and str3 != str1
     return result
   end
 
-  def rom2hira
-    return kata2hira(rom2kata)
+  def to_hiragana
+    return kata_to_hira(to_katakana)
   end
 
   def is_kana?
@@ -378,11 +378,6 @@ module Kana2rom
     end
     return false
   end
-
-  alias :to_hiragana :rom2hira
-  alias :to_katakana :rom2kata
-  alias :to_romaji :kana2rom
-
 end
 
 class String
