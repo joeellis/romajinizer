@@ -3,47 +3,47 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Romajinizer" do
   it "should convert romaji to hiragana properly" do
-    "tsukue".to_hiragana.should == "つくえ"
-    "kinnyoubi".to_hiragana.should == "きんようび"
-    "kin'youbi".to_hiragana.should == "きんようび"
-    "konnya".to_hiragana.should == "こんや"
-    "konnnichi".to_hiragana.should == "こんにち"
-    "kaetta".to_hiragana.should == "かえった"
+    expect("tsukue".to_hiragana).to eq("つくえ")
+    expect("kinnyoubi".to_hiragana).to eq("きんようび")
+    expect("kin'youbi".to_hiragana).to eq("きんようび")
+    expect("konnya".to_hiragana).to eq("こんや")
+    expect("konnnichi".to_hiragana).to eq("こんにち")
+    expect("kaetta".to_hiragana).to eq("かえった")
   end
 
   it "should convert romaji to katakana properly" do
-    "tsukue".to_katakana.should == "ツクエ"
+    expect("tsukue".to_katakana).to eq("ツクエ")
   end
 
   it "should convert kana to romaji properly" do
-    "つくえ".to_romaji.should == "tsukue"
-    "きんようび".to_romaji.should == "kinyoubi"
-    "こんや".to_romaji.should == "konya"
-    "こんにち".to_romaji.should == "konnichi"
+    expect("つくえ".to_romaji).to eq("tsukue")
+    expect("きんようび".to_romaji).to eq("kinyoubi")
+    expect("こんや".to_romaji).to eq("konya")
+    expect("こんにち".to_romaji).to eq("konnichi")
   end
 
   it "should convert kana to kana" do
-    "こんばn".to_hiragana.should == "こんばん"
+    expect("こんばn".to_hiragana).to eq("こんばん")
   end
 
   it "should be able to tell if a word contains anything else but kana" do
-    "行きます".is_only_kana?.should == false
-    "いきます".is_only_kana?.should == true
+    expect("行きます".is_only_kana?).to eq(false)
+    expect("いきます".is_only_kana?).to eq(true)
   end
 
   it "should be able to tell if a word contains kana" do
-    "行きます".contains_kana?.should == true
-    "abcdefg".contains_kana?.should == false
+    expect("行きます".contains_kana?).to eq(true)
+    expect("abcdefg".contains_kana?).to eq(false)
   end
 
   it "should be able to tell if a character is a kana character" do
-    "す".is_kana?.should == true
+    expect("す".is_kana?).to eq(true)
   end
 
   it "should be able to tell if a character is a kanji character" do
-    "行".is_kanji?.should == true
-    "あ".is_kanji?.should == false
-    "ア".is_kanji?.should == false
-    "〜".is_kanji?.should == false
+    expect("行".is_kanji?).to eq(true)
+    expect("あ".is_kanji?).to eq(false)
+    expect("ア".is_kanji?).to eq(false)
+    expect("〜".is_kanji?).to eq(false)
   end
 end
