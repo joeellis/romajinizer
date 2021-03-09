@@ -1,6 +1,7 @@
 source "http://rubygems.org"
 
-group :development do
-  gem "rspec", "2.8.0"
+group :development, :test do
+  gem "rspec"
+  gem "transpec"
   gem "jeweler"
 end
